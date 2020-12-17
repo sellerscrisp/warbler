@@ -1,7 +1,6 @@
 import os
 
 from flask import Flask, render_template, request, flash, redirect, session, g
-from flask_debugtoolbar import DebugToolbarExtension
 from sqlalchemy.exc import IntegrityError
 
 from forms import UserAddForm, LoginForm, MessageForm
@@ -20,10 +19,9 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_ECHO'] = False
 app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = True
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', "it's a secret")
-toolbar = DebugToolbarExtension(app)
 
 connect_db(app)
-
+db.create_all()
 
 ##############################################################################
 # User signup/login/logout
@@ -32,6 +30,8 @@ connect_db(app)
 @app.before_request
 def add_user_to_g():
     """If we're logged in, add curr user to Flask global."""
+
+    g.form = MessageForm()
 
     if CURR_USER_KEY in session:
         g.user = User.query.get(session[CURR_USER_KEY])
@@ -113,11 +113,15 @@ def login():
 def logout():
     """Handle logout of user."""
 
-    # IMPLEMENT THIS
+    db.logout()
 
+    flash('You have successfully logged out!', 'success')
+
+    redirect('/login')
 
 ##############################################################################
 # General user routes:
+
 
 @app.route('/users')
 def list_users():
