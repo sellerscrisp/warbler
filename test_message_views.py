@@ -5,6 +5,7 @@
 #    FLASK_ENV=production python -m unittest test_message_views.py
 
 
+from app import app, CURR_USER_KEY
 import os
 from unittest import TestCase
 
@@ -15,12 +16,11 @@ from models import db, connect_db, Message, User, Likes
 # before we import our app, since that will have already
 # connected to the database
 
-os.environ['DATABASE_URL'] = "postgresql:///warbler-test"
+os.environ['DATABASE_URL'] = 'postgresql:///warbler-test'
 
 
 # Now we can import app
 
-from app import app, CURR_USER_KEY
 
 # Create our tables (we do this here, so we only create the tables
 # once for all tests --- in each test, we'll delete the data
@@ -33,9 +33,9 @@ db.create_all()
 app.config['WTF_CSRF_ENABLED'] = False
 
 USER_DATA_1 = {
-    'email': "testuser1@test.com",
-    'username': "testuser1",
-    'password': "HASHED_PASSWORD"
+    'email': 'testuser1@test.com',
+    'username': 'testuser1',
+    'password': 'HASHED_PASSWORD'
 }
 
 
@@ -51,9 +51,9 @@ class MessageViewTestCase(TestCase):
 
         self.client = app.test_client()
 
-        self.testuser = User.signup(username="testuser",
-                                    email="test@test.com",
-                                    password="testuser",
+        self.testuser = User.signup(username='testuser',
+                                    email='test@test.com',
+                                    password='testuser',
                                     image_url=None)
 
         db.session.commit()
@@ -71,13 +71,13 @@ class MessageViewTestCase(TestCase):
             # Now, that session setting is saved, so we can have
             # the rest of ours test
 
-            resp = c.post("/messages/new", data={"text": "Hello"})
+            resp = c.post('/messages/new', data={'text': 'Hello'})
 
             # Make sure it redirects
             self.assertEqual(resp.status_code, 302)
 
             msg = Message.query.one()
-            self.assertEqual(msg.text, "Hello")
+            self.assertEqual(msg.text, 'Hello')
 
     def test_like_message(self):
 
@@ -87,14 +87,13 @@ class MessageViewTestCase(TestCase):
         user = User(**USER_DATA_1)
         db.session.add(user)
         db.session.commit()
-        message = Message(text="Hi", user_id=user.id)
+        message = Message(text='Hi', user_id=user.id)
         db.session.add(message)
         db.session.commit()
-        resp = c.post(f"/messages/{message.id}/like")
+        resp = c.post(f'/messages/{message.id}/like')
         count = Likes.query.filter(User.id == self.testuser.id).count()
         self.assertEqual(resp.status_code, 302)
         self.assertEqual(count, 1)
-
 
     def test_like_own_message(self):
 
@@ -102,10 +101,10 @@ class MessageViewTestCase(TestCase):
             with c.session_transaction() as sess:
                 sess[CURR_USER_KEY] = self.testuser.id
 
-        message = Message(text="Hi", user_id=self.testuser.id)
+        message = Message(text='Hi', user_id=self.testuser.id)
         db.session.add(message)
         db.session.commit()
-        resp = c.post(f"/messages/{message.id}/like")
+        resp = c.post(f'/messages/{message.id}/like')
         count = Likes.query.filter(User.id == self.testuser.id).count()
         self.assertEqual(resp.status_code, 302)
         self.assertEqual(count, 0)
@@ -119,14 +118,13 @@ class MessageViewTestCase(TestCase):
         user = User(**USER_DATA_1)
         db.session.add(user)
         db.session.commit()
-        message = Message(text="Hi", user_id=user.id)
+        message = Message(text='Hi', user_id=user.id)
         db.session.add(message)
         db.session.commit()
         like = Likes(user_id=self.testuser.id, message_id=message.id)
         db.session.add(like)
         db.session.commit()
-        resp = c.post(f"/messages/{message.id}/like")
+        resp = c.post(f'/messages/{message.id}/like')
         count = Likes.query.filter(User.id == self.testuser.id).count()
         self.assertEqual(resp.status_code, 302)
         self.assertEqual(count, 0)
-        

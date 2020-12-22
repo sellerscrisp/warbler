@@ -3,6 +3,7 @@
 #
 #    python -m unittest test_user_model.py
 
+from app import app
 import os
 from unittest import TestCase
 from sqlalchemy.exc import InvalidRequestError, IntegrityError
@@ -14,11 +15,10 @@ from models import db, User, Message, Follows, Likes
 # before we import our app, since that will have already
 # connected to the database
 
-os.environ['DATABASE_URL'] = "postgresql:///warbler-test"
+os.environ['DATABASE_URL'] = 'postgresql:///warbler-test'
 
 # Now we can import app
 
-from app import app
 
 # Create our tables (we do this here, so we only create the tables
 # once for all tests --- in each test, we'll delete the data
@@ -26,18 +26,18 @@ from app import app
 
 db.create_all()
 
-MESSAGE_DATA_1 = {"text": "hi", "user_id": None}
+MESSAGE_DATA_1 = {'text': 'hi', 'user_id': None}
 
 USER_DATA_1 = {
-    'email': "testuser1@test.com",
-    'username': "testuser1",
-    'password': "HASHED_PASSWORD"
+    'email': 'testuser1@test.com',
+    'username': 'testuser1',
+    'password': 'HASHED_PASSWORD'
 }
 
 USER_DATA_2 = {
-    'email': "testuser2@@test.com",
-    'username': "testuser2",
-    'password': "HASHED_PASSWORD"
+    'email': 'testuser2@@test.com',
+    'username': 'testuser2',
+    'password': 'HASHED_PASSWORD'
 }
 
 
@@ -78,6 +78,3 @@ class MessageModelTestcase(TestCase):
 
         count = Likes.query.count()
         self.assertEqual(count, 1)
-
-   
-
