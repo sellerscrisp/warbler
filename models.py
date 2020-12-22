@@ -15,13 +15,13 @@ class Follows(db.Model):
 
     user_being_followed_id = db.Column(
         db.Integer,
-        db.ForeignKey('users.id', ondelete="cascade"),
+        db.ForeignKey('users.id', ondelete='cascade'),
         primary_key=True,
     )
 
     user_following_id = db.Column(
         db.Integer,
-        db.ForeignKey('users.id', ondelete="cascade"),
+        db.ForeignKey('users.id', ondelete='cascade'),
         primary_key=True,
     )
 
@@ -66,11 +66,11 @@ class User(db.Model):
 
     image_url = db.Column(
         db.Text,
-        default="/static/images/default-pic.png",
+        default='/static/images/default-pic.png',
     )
 
     header_image_url = db.Column(db.Text,
-                                 default="/static/images/warbler-hero.jpg")
+                                 default='/static/images/warbler-hero.jpg')
 
     bio = db.Column(db.Text, )
 
@@ -84,21 +84,21 @@ class User(db.Model):
     messages = db.relationship('Message')
 
     followers = db.relationship(
-        "User",
-        secondary="follows",
+        'User',
+        secondary='follows',
         primaryjoin=(Follows.user_being_followed_id == id),
         secondaryjoin=(Follows.user_following_id == id))
 
     following = db.relationship(
-        "User",
-        secondary="follows",
+        'User',
+        secondary='follows',
         primaryjoin=(Follows.user_following_id == id),
         secondaryjoin=(Follows.user_being_followed_id == id))
 
-    likes = db.relationship('Message', secondary="likes")
+    likes = db.relationship('Message', secondary='likes')
 
     def __repr__(self):
-        return f"<User #{self.id}: {self.username}, {self.email}>"
+        return f'<User #{self.id}: {self.username}, {self.email}>'
 
     def is_followed_by(self, other_user):
         """Is this user followed by `other_user`?"""
