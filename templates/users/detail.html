@@ -1,9 +1,7 @@
-{% extends 'base.html' %}
+{% extends 'base.html' %} {% block content %}
 
-{% block content %}
-
-<div id="warbler-hero" class="full-width" style="background-image: url({{ user.header_image_url }});"></div>
-<img src="{{ user.image_url }}" alt="Image for {{ user.username }}" id="profile-avatar">
+<div id="warbler-hero" class="full-width" style="background-image: url('{{ user.header_image_url }}');"></div>
+<img src="{{ user.image_url }}" alt="Image for {{ user.username }}" id="profile-avatar" />
 <div class="row full-width">
   <div class="container">
     <div class="row justify-content-end">
@@ -29,25 +27,20 @@
           </li>
           <li class="stat">
             <p class="small">Likes</p>
-            <h4>TBD</h4>
+            <h4>
+              <a href="/users/{{ user.id }}/likes">{{ g.user.likes | length}}</a>
+            </h4>
           </li>
           <div class="ml-auto">
-            {% if g.user.id == user.id %}
-            <a href="/users/profile" class="btn btn-outline-secondary">Edit Profile</a>
-            <form method="POST" action="/users/delete" class="form-inline">
-              <button class="btn btn-outline-danger ml-2">Delete Profile</button>
-            </form>
-            {% elif g.user %}
-            {% if g.user.is_following(user) %}
+            {% if g.user.id != user.id %} {% if g.user.is_following(user) %}
             <form method="POST" action="/users/stop-following/{{ user.id }}">
-              <button class="btn btn-primary">Unfollow</button>
+              <button class="btn btn-primary">stop-following</button>
             </form>
             {% else %}
             <form method="POST" action="/users/follow/{{ user.id }}">
               <button class="btn btn-outline-primary">Follow</button>
             </form>
-            {% endif %}
-            {% endif %}
+            {% endif %} {% endif %}
           </div>
         </ul>
       </div>
@@ -56,15 +49,17 @@
 </div>
 
 <div class="row">
-  <div class="col-sm-3">
+  <div class="col-sm-3 col-md-3">
     <h4 id="sidebar-username">@{{ user.username }}</h4>
+    {% if user.bio %}
     <p>{{ user.bio }}</p>
-    <p class="user-location"><span class="fa fa-map-marker"></span>{{ user.location }}</p>
+    {% endif %} {% if user.location %}
+    <p class="user-location">
+      <span class="fa fa-map-marker"></span> {{ user.location }}
+    </p>
+    {% endif %}
   </div>
 
-  {% block user_details %}
-  {% endblock %}
-
+  {% block user_details %} {% endblock %}
 </div>
-
-{% endblock %}
+{% block list %} {% endblock %} {% endblock %}

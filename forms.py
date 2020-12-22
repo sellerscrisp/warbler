@@ -1,6 +1,8 @@
+"""WTForm forms for Warbler."""
+
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, TextAreaField
-from wtforms.validators import DataRequired, Length
+from wtforms.validators import DataRequired, Email, Length
 
 
 class MessageForm(FlaskForm):
@@ -13,9 +15,20 @@ class UserAddForm(FlaskForm):
     """Form for adding users."""
 
     username = StringField('Username', validators=[DataRequired()])
-    email = StringField('E-mail', validators=[DataRequired()])
+    email = StringField('E-mail', validators=[DataRequired(), Email()])
     password = PasswordField('Password', validators=[Length(min=6)])
     image_url = StringField('(Optional) Image URL')
+
+
+class UserEditForm(FlaskForm):
+    """Form for adding users."""
+
+    username = StringField('Username', validators=[DataRequired()])
+    email = StringField('E-mail', validators=[DataRequired(), Email()])
+    password = PasswordField('Password', validators=[Length(min=6)])
+    image_url = StringField('(Optional) Image URL')
+    header_image_url = StringField('(Optional) Header Image URL')
+    bio = TextAreaField("Bio")
 
 
 class LoginForm(FlaskForm):
@@ -25,11 +38,8 @@ class LoginForm(FlaskForm):
     password = PasswordField('Password', validators=[Length(min=6)])
 
 
-class UserEditForm(FlaskForm):
-    username = StringField('Username', validators=[DataRequired()])
-    email = StringField('E-mail', validators=[DataRequired()])
-    image_url = StringField('(Optional) Image URL')
-    header_image_url = StringField('(Optional) Header Image URL')
-    bio = TextAreaField('(Optional) Bio')
-    password = PasswordField('Password', validators=[
-        DataRequired(), Length(min=6)])
+class UserPasswordForm(FlaskForm):
+    password = PasswordField('Current Password', validators=[])
+    new_password = PasswordField('New Password', validators=[Length(min=6)])
+    confirm_password = PasswordField('Confirm New Password',
+                                     validators=[Length(min=6)])

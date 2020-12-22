@@ -1,0 +1,31 @@
+    <ul class="list-group" id="messages">
+
+      {% for message in messages %}
+
+      <li class="list-group-item">
+        <a href="/messages/{{ message.id }}" class="message-link" />
+
+        <a href="/users/{{ message.user.id }}">
+          <img src="{{ message.user.image_url }}" alt="user image" class="timeline-image">
+        </a>
+
+        <div class="message-area">
+          <a href="/users/{{ message.user.id }}">@{{ message.user.username }}</a>
+          <span class="text-muted">{{ message.timestamp.strftime('%d %B %Y') }}</span>
+          <p>{{ message.text }}</p>
+        </div>
+        {% if g.user.id != message.user_id %}
+        <form method="POST" action="/messages/{{ message.id }}/like" class="messages-like">
+          <button id="{{ message.id }}" class="
+              btn
+              btn-sm
+              {{'btn-primary' if message in g.user.likes else 'btn-secondary'}}">
+            <i class="fa fa-thumbs-up"></i>
+          </button>
+        </form>
+        {% endif %}
+      </li>
+
+      {% endfor %}
+
+    </ul>
