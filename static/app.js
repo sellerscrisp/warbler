@@ -1,27 +1,21 @@
-$(function () {
+"use strict";
 
-  $("#messages").on("click", "button", async function (e) {
-    e.preventDefault();
+function getToggleLikeAPI(msgId) {
+  return `/api/messages/${msgId}/toggle_like`
+}
 
-    let message_id = e.currentTarget.id;
-    let response = await axios.post(`/messages/${message_id}/like`)
-    if (response.status == 200) {
-      $(e.currentTarget).toggleClass("btn-primary btn-secondary");
-    } else {
-      console.log(response.data.message);
-    }
-  })
-  
+async function toggleLike(evt) {
+  let icon = $(evt.target);
+  let msgId = icon.data("msg-id");
+  const API = getToggleLikeAPI(msgId);
+  let resp = await axios.post(API)
 
-  $('#message-submit').on('click', async e => {
-    e.preventDefault();
-    $('#message-modal').modal('toggle');
-    let text = $('#text').val();
-    let response = await axios.post('/messages/new', { text });
+  if (resp.data.message === "Bad like" || resp.status === 401) {
+    return;
+  }
 
-    // we were going to prepend the user/message info
-  });
+  icon.toggleClass("far");
+  icon.toggleClass("fas");
+}
 
- 
-
-});
+$("#messages").on("click", ".fa-heart", toggleLike);
