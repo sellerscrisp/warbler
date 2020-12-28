@@ -1,0 +1,43 @@
+{% extends 'users/detail.html' %}
+{% block user_details %}
+<div class="col-sm-6" id="user-likes">
+    <ul class="list-group" id="messages">
+
+        {% for message in user.liked_messages %}
+
+        <li class="list-group-item">
+            <a href="{{ url_for('messages_show', message_id=message.id) }}" class="message-link"></a>
+
+            <a href="{{ url_for('show_user', user_id=message.user_id) }}">
+                <img src="{{ message.user.image_url }}" alt="user image" class="timeline-image">
+            </a>
+
+            <div class="message-area">
+                <a href="{{ url_for('show_user', user_id=message.user_id) }}">@{{ message.user.username }}</a>
+                <span class="text-muted">
+                    {{ message.timestamp.strftime('%d %B %Y') }}
+                </span>
+                <p class="text-break">{{ message.text }}</p>
+            </div>
+
+            <div class='col'>
+                {% if g.user and g.user.id != message.user.id %}
+                {% if message.id in liked_message_ids %}
+                <div class="row justify-content-end">
+                    <i class="fas fa-heart" data-msg-id="{{message.id}}"></i>
+                </div>
+                {% else %}
+                <div class="row justify-content-end">
+                    <i class="far fa-heart" data-msg-id="{{message.id}}"></i>
+                </div>
+                {% endif %}
+                {% endif %}
+            </div>
+
+        </li>
+
+        {% endfor %}
+
+    </ul>
+</div>
+{% endblock %}

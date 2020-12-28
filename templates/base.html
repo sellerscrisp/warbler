@@ -2,83 +2,124 @@
 <html lang="en">
 
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <title>Warbler</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet"
-    integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
+
+  <link rel="stylesheet" href="https://unpkg.com/bootstrap/dist/css/bootstrap.css">
   <script src="https://unpkg.com/jquery"></script>
   <script src="https://unpkg.com/popper"></script>
   <script src="https://unpkg.com/bootstrap"></script>
-  <script src="https://unpkg.com/axios/dist/axios.js"></script>
-  <script src="/static/app.js"></script>
 
-  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css" />
-  <link rel="stylesheet" href="/static/stylesheets/style.css" />
-  <link rel="shortcut icon" href="/static/favicon.ico" />
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css">
+  <link rel="stylesheet" href="/static/stylesheets/style.css">
+  <link rel="shortcut icon" href="/static/favicon.ico">
 </head>
 
 <body class="{% block body_class %}{% endblock %}">
+
   <nav class="navbar navbar-expand">
     <div class="container-fluid">
+
       <div class="navbar-header">
         <a href="/" class="navbar-brand">
-          <img src="/static/images/warbler-logo.png" alt="logo" />
+          <img src="/static/images/warbler-logo.png" alt="logo">
           <span>Warbler</span>
         </a>
       </div>
+
       <ul class="nav navbar-nav navbar-right">
-        {% if request.endpoint != None %}
+
+        {% block searchbox %}
         <li>
           <form class="navbar-form navbar-right" action="/users">
-            <input name="q" class="form-control" placeholder="Search Warbler" id="search" />
+            <input name="q" class="form-control" placeholder="Search Warbler" aria-label="Search" id="search">
             <button class="btn btn-default">
               <span class="fa fa-search"></span>
             </button>
           </form>
         </li>
-        {% endif %} {% if not g.user %}
-        <li><a href="/signup">Sign up</a></li>
-        <li><a href="/login">Log in</a></li>
+        {% endblock %}
+
+        {% if not g.user %}
+        <li><a href="{{ url_for('signup') }}">Sign up</a></li>
+        <li><a href="{{ url_for('login') }}">Log in</a></li>
         {% else %}
-        <li>
-          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-list-4"
-            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-          </button>
-          <div class="collapse navbar-collapse" id="navbar-list-4">
-            <ul class="navbar-nav">
-              <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button"
-                  data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                  <img src="{{ g.user.image_url }}" width="40" height="40" class="rounded-circle"
-                    alt="{{ g.user.username }}" />
-                </a>
-                <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                  <a class="dropdown-item" href="/users/{{ g.user.id }}">View profile</a>
-                  <a class="dropdown-item" href="/users/profile">Edit profile</a>
-                  <a class="dropdown-item" href="/logout">Log out</a>
-                </div>
-              </li>
-            </ul>
+        <li class="nav-item dropdown ml-3">
+          <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown"
+            aria-haspopup="true" aria-expanded="false"><img src="{{ g.user.image_url }}" alt="{{ g.user.username }}">
+          </a>
+          <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+            <a href="{{ url_for('show_user', user_id=g.user.id) }}" class="dropdown-item">View Profile</a>
+            <a href="{{ url_for('profile', user_id=g.user.id) }}" class="dropdown-item">Edit Profile</a>
+            <form action="{{ url_for('logout') }}" method="POST">
+              {{ g.delete_or_logout_form.csrf_token }}
+              <button class="dropdown-item" type="submit">Log out</button>
           </div>
         </li>
+
         <li>
-          <button type="button" data-toggle="modal" data-target="#message-modal" class="btn btn-outline-primary"
-            id="message-button">
+          <button type="button" class="btn btn-link hide-btn-outline" data-toggle="modal"
+            data-target="#newMessageModal">
             New Message
           </button>
         </li>
-
         {% endif %}
+
       </ul>
     </div>
   </nav>
+
   <div class="container">
+
     {% for category, message in get_flashed_messages(with_categories=True) %}
-    <div class="alert alert-{{ category }}">{{ message }}</div>
-    {% endfor %} {% block content %} {% endblock %} {% if g.user %} {% include
-      'messages/new_modal.html' %} {% endif %}
+    <div class="alert alert-{{ category }} text-center">{{ message }}</div>
+    {% endfor %}
+
+    {% block content %}
+    {% endblock %}
+
   </div>
+
+  <div class="modal fade" id="newMessageModal" tabindex="-1" aria-labelledby="newMessageModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="newMessageModalLabel">New message</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+
+        <div class="modal-body">
+          <form method="POST" action="{{ url_for('messages_add') }}">
+            {{ g.message_form.csrf_token }}
+
+            <div>
+              {% if g.message_form.text.errors %}
+              {% for error in g.message_form.text.errors %}
+              <span class="text-danger">
+                {{ error }}
+              </span>
+              {% endfor %}
+              {% endif %}
+
+              {{ g.message_form.text(placeholder="What's happening?", class="form-control", rows="3") }}
+            </div>
+
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            <button class="btn btn-outline-success" type="submit">Add my message!</button>
+          </form>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+
+  <script src="https://unpkg.com/axios/dist/axios.js"></script>
+  <script src="http://unpkg.com/jquery"></script>
+  <script src="/static/app.js"></script>
+
 </body>
 
 </html>

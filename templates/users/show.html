@@ -1,5 +1,45 @@
-{% extends 'users/detail.html' %} {% block user_details %}
-<div class="col-sm-9 col-md-8">
-  {% include 'messages/list.html' %}
+{% extends 'users/detail.html' %}
+{% block user_details %}
+<div class="col-sm-6">
+  <ul class="list-group" id="messages">
+
+    <!-- User detail messages here -->
+    {% for message in user.messages %}
+
+    <li class="list-group-item">
+      <a href="{{ url_for('messages_show', message_id=message.id) }}" class="message-link"></a>
+
+      <a href="{{ url_for('show_user', user_id=user.id) }}">
+        <img src="{{ user.image_url }}" alt="user image" class="timeline-image">
+      </a>
+
+      <div class="message-area">
+        <a href="{{ url_for('show_user', user_id=user.id) }}">@{{ user.username }}</a>
+        <span class="text-muted">
+          {{ message.timestamp.strftime('%d %B %Y') }}
+        </span>
+        <p class="text-break">{{ message.text }}</p>
+      </div>
+
+      <div class="col">
+        <!-- Conditional like button for messages -->
+        {% if g.user and g.user.id != message.user.id %}
+        <!-- Check if id is in set of liked user ids, more efficient  -->
+        {% if message.id in liked_message_ids %}
+        <div class="row justify-content-end">
+          <i class="fas fa-heart" data-msg-id="{{message.id}}"></i>
+        </div>
+        {% else %}
+        <div class="row justify-content-end">
+          <i class="far fa-heart" data-msg-id="{{message.id}}"></i>
+        </div>
+        {% endif %}
+        {% endif %}
+      </div>
+    </li>
+
+    {% endfor %}
+
+  </ul>
 </div>
 {% endblock %}

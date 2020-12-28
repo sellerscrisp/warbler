@@ -4,11 +4,13 @@
 
 <div class="row justify-content-md-center">
   <div class="col-md-4">
-    <h2 class="join-message">Edit Profile.</h2>
+    <h2 class="join-message">Edit Your Profile.</h2>
     <form method="POST" id="user_form">
       {{ form.hidden_tag() }}
 
-      {% for field in form if field.widget.input_type != 'hidden' and field.name != 'password' %}
+      {% for field in form if
+              field.widget.input_type != 'hidden' and
+              field.name != 'password' %}
       {% for error in field.errors %}
       <span class="text-danger">{{ error }}</span>
       {% endfor %}
@@ -26,15 +28,9 @@
       {{ form.password(placeholder="Enter your password to confirm", class="form-control") }}
 
       <div class="edit-btn-area">
-        <button class="btn btn-success">Save Changes</button>
-        <a href="/users/{{ user_id }}" class="btn btn-outline-secondary">Cancel</a>
+        <button class="btn btn-success">Edit this user!</button>
+        <a href="{{ url_for('show_user', user_id=g.user.id) }}" class="btn btn-outline-secondary">Cancel</a>
       </div>
-      <hr />
-      <div class="edit-btn-area">
-        <a href="/users/profile/password" class="btn btn-outline-danger">Change Password</a>
-        <button class="btn btn-outline-danger">Delete Profile</button>
-      </div>
-
     </form>
   </div>
 </div>
