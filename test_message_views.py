@@ -144,7 +144,7 @@ class MessageViewTestCase(TestCase):
             resp = c.get(f'/messages/{self.testmsg2_id}')
             html = resp.get_data(as_text=True)
             self.assertEqual(resp.status_code, 200)
-            self.assertIn('id="messages"', html)
+            self.assertIn('id='messages'', html)
 
     def test_when_logged_out_fails(self):
         """ Can user do the following when logged out: add, delete, messages? """
@@ -157,7 +157,7 @@ class MessageViewTestCase(TestCase):
             html = resp.get_data(as_text=True)
 
             self.assertEqual(resp.status_code, 200)
-            self.assertIn("id='not-logged-in-message'", html)
+            self.assertIn('id='not-logged-in-message'', html)
             self.assertIn('Access unauthorized.', html)
 
             # Delete?
@@ -165,5 +165,5 @@ class MessageViewTestCase(TestCase):
                 f'/messages/{self.testmsg2_id}/delete', follow_redirects=True)
 
             self.assertEqual(resp.status_code, 200)
-            self.assertIn('id="not-logged-in-message"', html)
+            self.assertIn('id='not-logged-in-message'', html)
             self.assertIn('Access unauthorized.', html)
