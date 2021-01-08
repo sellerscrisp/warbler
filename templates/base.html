@@ -44,25 +44,25 @@
         <li><a href="{{ url_for('signup') }}">Sign up</a></li>
         <li><a href="{{ url_for('login') }}">Log in</a></li>
         {% else %}
-        <li class="nav-item dropdown ml-3">
-          <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown"
-            aria-haspopup="true" aria-expanded="false"><img src="{{ g.user.image_url }}" alt="{{ g.user.username }}">
+        <li>
+          <a href="{{ url_for('show_user', user_id=g.user.id) }}">
+            <img src="{{ g.user.image_url }}" alt="{{ g.user.username }}">
           </a>
-          <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-            <a href="{{ url_for('show_user', user_id=g.user.id) }}" class="dropdown-item">View Profile</a>
-            <a href="{{ url_for('profile', user_id=g.user.id) }}" class="dropdown-item">Edit Profile</a>
-            <form action="{{ url_for('logout') }}" method="POST">
-              {{ g.delete_or_logout_form.csrf_token }}
-              <button class="dropdown-item" type="submit">Log out</button>
-          </div>
         </li>
 
         <li>
+          <!-- Button trigger modal -->
           <button type="button" class="btn btn-link hide-btn-outline" data-toggle="modal"
             data-target="#newMessageModal">
             New Message
           </button>
         </li>
+        <li>
+          <form action="{{ url_for('logout') }}" method="POST">
+            {{ g.delete_or_logout_form.csrf_token }}
+            <button class="btn btn-link" type="submit">Log out</button>
+        </li>
+        </form>
         {% endif %}
 
       </ul>
@@ -72,7 +72,11 @@
   <div class="container">
 
     {% for category, message in get_flashed_messages(with_categories=True) %}
-    <div class="alert alert-{{ category }} text-center">{{ message }}</div>
+    <div class="alert alert-{{ category }} text-center alert-dismissible fade show border">{{ message }}
+      <button type="button" class="close my-auto" data-dismiss="alert" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
     {% endfor %}
 
     {% block content %}
