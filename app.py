@@ -2,6 +2,9 @@ import os
 
 from flask import Flask, render_template, request, flash, redirect, session, g, abort, jsonify, url_for
 
+from flask_admin import Admin
+from flask_admin.contrib.sqla import ModelView
+
 from flask_debugtoolbar import DebugToolbarExtension
 from sqlalchemy.exc import IntegrityError, InvalidRequestError
 
@@ -14,11 +17,27 @@ CURR_USER_KEY = 'curr_user'
 
 app = Flask(__name__)
 
+admin = Admin(app, name='Warbler', template_mode='bootstrap3')
+
+
+class MyModelView(ModelView):
+
+    def is_accessible(self):
+        return g.user and g.user.is_admin
+
+    def inaccessible_callback(self, name, **kwargs):
+        # redirect to home page if user doesn't have access
+        flash('Unauthorized!', 'danger')
+        return redirect('/')
+
+
+admin.add_view(MyModelView(User, db.session))
+admin.add_view(MyModelView(Message, db.session))
 
 # Get DB_URI from environ variable (useful for production/testing) or,
 # if not set there, use development local db.
 app.config['SQLALCHEMY_DATABASE_URI'] = (
-    os.environ.get('DATABASE_URL', 'postgres:///warbler'))
+    os.environ.get('DATABASE_URL', 'postgres:///warbler2'))
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_ECHO'] = False
@@ -137,7 +156,8 @@ def login():
     form = LoginForm()
 
     if form.validate_on_submit():
-        user = User.authenticate(form.username.data, form.password.data)
+        user = User.authenticate(form.username.data,
+                                 form.password.data)
 
         if user:
             do_login(user)
@@ -229,7 +249,7 @@ def add_follow(follow_id):
     g.user.following.append(followed_user)
     db.session.commit()
 
-    flash(f'Successfully followed user: {followed_user.username}', 'success')
+    flash(f'Successfully followed {followed_user.username}', 'success')
 
     return redirect(request.referrer)
 
@@ -247,7 +267,7 @@ def stop_following(follow_id):
     g.user.following.remove(followed_user)
     db.session.commit()
 
-    flash(f'Successfully unfollowed user: {followed_user.username}', 'success')
+    flash(f'Successfully unfollowed {followed_user.username}', 'success')
 
     return redirect(request.referrer)
 
